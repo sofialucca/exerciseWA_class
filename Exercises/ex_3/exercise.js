@@ -68,3 +68,4 @@ exams.add(softeng);
 
 console.log(exams.find('01abc'));
 console.log(exams);
+console.log(exams.listByDate());
