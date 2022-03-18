@@ -1,7 +1,7 @@
-'use strict';
+"use strict";
 
-const dayjs = require('dayjs');
-const sqlite = require('sqlite3');
+const dayjs = require("dayjs");
+const sqlite = require("sqlite3");
 
 function Exam(code, name, credits, date, score, laude = false) {
   this.code = code;
@@ -11,54 +11,90 @@ function Exam(code, name, credits, date, score, laude = false) {
   this.score = score;
   this.laude = laude;
 
-  this.toString = () => `${this.code} - ${this.name}: ${laude ? this.score + 'L' : this.score}`;
+  this.toString = () =>
+    `${this.code} - ${this.name}: ${laude ? this.score + "L" : this.score}`;
 }
 
 function ExamList() {
-
-  const db = new sqlite.Database('exams.sqlite', err => {if(err) throw err});
+  const db = new sqlite.Database("exams.sqlite", (err) => {
+    if (err) throw err;
+  });
 
   // add
   this.add = (exam) => {
-    
     return new Promise((resolve, reject) => {
-      const sql = 'INSERT INTO score(coursecode, score, laude, datepassed) VALUES(?, ?, ?, DATE(?))';
+      const sql =
+        "INSERT INTO score(coursecode, score, laude, datepassed) VALUES(?, ?, ?, DATE(?))";
       //date must be in the format of the database object type data
-      db.run(sql, [exam.code, exam.score, exam.laude, exam.date.format('YYYY-MM-DD')], function (err){
-        if(err) reject(err);
-        else resolve(this.lastID);
-      })
+      db.run(
+        sql,
+        [exam.code, exam.score, exam.laude, exam.date.format("YYYY-MM-DD")],
+        function (err) {
+          if (err) reject(err);
+          else resolve(this.lastID);
+        }
+      );
     });
-
   };
 
   // getAll
   this.getAll = () => {
-    
     return new Promise((resolve, reject) => {
-      const sql = 'SELECT * FROM course Join score ON course.code = score.coursecode';
+      const sql =
+        "SELECT * FROM course Join score ON course.code = score.coursecode";
 
-      db.all(sql, [], (err,rows) => {
-        if(err)
-          reject(err);
-        else{
-          const exams = rows.map(row => new Exam(row.code, row.name, row.CFU, row.datepassed, row.score, (row.laude? true : false)));
+      db.all(sql, [], (err, rows) => {
+        if (err) reject(err);
+        else {
+          const exams = rows.map(
+            (row) =>
+              new Exam(
+                row.code,
+                row.name,
+                row.CFU,
+                row.datepassed,
+                row.score,
+                row.laude ? true : false
+              )
+          );
           resolve(exams);
         }
-          
-      })
+      });
     });
   };
 
   // find
-  this.find = (code) => {
-    // write something clever
-  }
+  this.find = (courseCode) => {
+    return new Promise((resolve, reject) => {
+      const sql =
+        "SELECT * FROM course Join score ON course.code = score.coursecode WHERE course.code = ?";
+
+      db.get(sql, [courseCode], (err, row) => {
+        if (err) reject(err);
+        else {
+          if(row !== undefined){
+            const exam = new Exam(
+              row.code,
+              row.name,
+              row.CFU,
+              row.datepassed,
+              row.score,
+              row.laude ? true : false
+            );
+            resolve(exam);
+          }else{
+            resolve("No exam found with code " + courseCode);
+          }
+
+        }
+      });
+    });
+  };
 
   // afterDate
   this.afterDate = (date) => {
     // write something clever
-  }
+  };
 
   //getWorst
   this.getWorst = (num) => {
@@ -66,19 +102,34 @@ function ExamList() {
   };
 }
 
-
 /* TESTING */
-async function main(){
-  const wa1 = new Exam('01TXYOV', 'Web Application I', 6, dayjs('2022-06-07'), 30, true);
-  const softeng = new Exam('04GSPOV', 'Software Engineering I', 6, dayjs('2022-07-02'), 28);
+async function main() {
+  const wa1 = new Exam(
+    "01TXYOV",
+    "Web Application I",
+    6,
+    dayjs("2022-06-07"),
+    30,
+    true
+  );
+  const softeng = new Exam(
+    "04GSPOV",
+    "Software Engineering I",
+    6,
+    dayjs("2022-07-02"),
+    28
+  );
 
   const examsDb = new ExamList();
-  const id = await examsDb.add(wa1);
-  console.log(id);
+  /*const id = await examsDb.add(wa1);
+  console.log(id);*/
 
   const myExams = await examsDb.getAll();
   console.log(myExams.toString());
 
+  const courseCode = "01TYMOV";
+  const myExam = await examsDb.find(courseCode);
+  console.log(myExam.toString());
 }
 
 main();
