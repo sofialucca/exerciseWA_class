@@ -93,7 +93,33 @@ function ExamList() {
 
   // afterDate
   this.afterDate = (date) => {
-    // write something clever
+    return new Promise((resolve, reject) => {
+      const sql =
+        "SELECT * FROM course Join score ON course.code = score.coursecode WHERE datepassed > ?";
+
+      db.all(sql, [date.format('YYYY-MM-DD')], (err, rows) => {
+        if (err) reject(err);
+        else {
+          if(rows.length === 0){
+            resolve('No exams after '+ date.format('DD-MM-YYYY'));
+          }else{
+            const exams = rows.map(
+              (row) =>
+                new Exam(
+                  row.code,
+                  row.name,
+                  row.CFU,
+                  row.datepassed,
+                  row.score,
+                  row.laude ? true : false
+                )
+            );
+            resolve(exams);            
+          }
+
+        }
+      });
+    });
   };
 
   //getWorst
@@ -130,6 +156,10 @@ async function main() {
   const courseCode = "01TYMOV";
   const myExam = await examsDb.find(courseCode);
   console.log(myExam.toString());
+
+  const date = dayjs('2022-08-09');
+  const examDate = await examsDb.afterDate(date);
+  console.log(examDate.toString());
 }
 
 main();
