@@ -46,18 +46,23 @@ function ExamList() {
       db.all(sql, [], (err, rows) => {
         if (err) reject(err);
         else {
-          const exams = rows.map(
-            (row) =>
-              new Exam(
-                row.code,
-                row.name,
-                row.CFU,
-                row.datepassed,
-                row.score,
-                row.laude ? true : false
-              )
-          );
-          resolve(exams);
+          if(rows.length === 0){
+            resolve('No exams found in the DB');
+          }else{
+            const exams = rows.map(
+              (row) =>
+                new Exam(
+                  row.code,
+                  row.name,
+                  row.CFU,
+                  row.datepassed,
+                  row.score,
+                  row.laude ? true : false
+                )
+            );
+            resolve(exams);            
+          }
+
         }
       });
     });
@@ -124,7 +129,37 @@ function ExamList() {
 
   //getWorst
   this.getWorst = (num) => {
-    // write something clever
+    return new Promise((resolve, reject) => {
+      const sql =
+        "SELECT * FROM course Join score ON course.code = score.coursecode ORDER BY score ASC";
+
+      db.all(sql, [], (err, rows) => {
+        if (err) reject(err);
+        else {
+          if(rows.length === 0){
+             resolve('No passed exams in the database');
+          }else{
+            if(num === 0){
+              resolve('No exams because number inserted is 0');
+            }else{
+              const exams = rows.filter((row,index)=>index<num).map(
+                (row,index) =>
+                  new Exam(
+                    row.code,
+                    row.name,
+                    row.CFU,
+                    row.datepassed,
+                    row.score,
+                    row.laude ? true : false
+                  )
+              );
+              resolve(exams);                   
+            } 
+          }           
+        }
+
+      });
+    });
   };
 }
 
@@ -160,6 +195,10 @@ async function main() {
   const date = dayjs('2022-08-09');
   const examDate = await examsDb.afterDate(date);
   console.log(examDate.toString());
+
+  const num = '';
+  const worstExam = await examsDb.getWorst(num);
+  console.log(worstExam.toString());
 }
 
 main();
