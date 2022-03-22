@@ -1,0 +1,12 @@
+aside,footer{
+    background-color: rgb(0, 225, 255);
+}
+
+.intro {
+    color: dimgray;
+    font-style: italic;
+}
+
+#bigger-margin-top{
+    margin-top: 1em;
+}
