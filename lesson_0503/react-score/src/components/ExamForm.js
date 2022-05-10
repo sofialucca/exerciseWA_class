@@ -6,8 +6,8 @@ import {Link, useNavigate,useParams, useLocation} from 'react-router-dom';
 function ExamForm(props) {
   
   const navigate = useNavigate();
-  const {examCode} = useParams();
-/*
+/*  const {examCode} = useParams();
+
   const editableExam = examCode && props.exams.find(ex => ex.code === examCode);
 
   const [code, setCode] = useState(editableExam ? editableExam.code : '');
@@ -65,7 +65,7 @@ function ExamForm(props) {
       <Button variant="primary" type="submit">Save</Button>
       &nbsp; 
       <Link  to = '/'>
-        <Button variant = "danger" onClick = {props.cancel}>Cancel</Button>
+        <Button variant = "danger">Cancel</Button>
       </Link>
 
     </Form>

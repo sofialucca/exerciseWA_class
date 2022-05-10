@@ -46,7 +46,7 @@ function App() {
           <Route path = '/add' element = {<FormRoute addExam={addExam}/>}/>
           <Route path = '/edit' element = {<EditRoute editExam = {updateExam} addExam = {addExam}/>}>
             {/*<Route index element={<h2>Please, specify exam</h2>}/>
-            <Route path = ":examCode" element = {<FormRoute exams = {exams} deleteExam={deleteExam} addExam={addExam} editExam = {updateExam}/>}/>
+            <Route path = ":examCode" element = {<ExamForm exams = {exams} deleteExam={deleteExam} addExam={addExam} editExam = {updateExam}/>}/>
             */}
           </Route>      
       </Routes>
